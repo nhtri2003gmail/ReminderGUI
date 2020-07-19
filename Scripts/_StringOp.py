@@ -12,6 +12,13 @@ def DateFormatDash(date):
     dateFormat = dd + '-' + mm + '-' + yyyy
     return dateFormat
 
+def ReverseDateFormatDash(date):
+    yyyy = str(int(date.split('-')[0]))
+    mm = str(int(date.split('-')[1]))
+    dd = str(int(date.split('-')[2]))
+    dateFormat = dd + '-' + mm + '-' + yyyy
+    return dateFormat
+
 def DateFormatSlash(date):
     yyyy = date.split('-')[2]
     mm = date.split('-')[1]

@@ -3,7 +3,6 @@ import os
 import os.path
 import codecs
 
-import _GetPath
 import _StringOp
 
 try:
@@ -29,7 +28,7 @@ class Note:
     time = []
     content = []
 ####################################################
-ui,_ = loadUiType('main.ui')
+ui,_ = loadUiType('UI\\main.ui')
 
 class MainApp(QMainWindow, ui):
     def __init__(self, parent=None):
@@ -37,7 +36,7 @@ class MainApp(QMainWindow, ui):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle("Reminder GUI")
-        self.setGeometry(250,125,120000,700)
+        self.setGeometry(250,125,1184,842)
         self.tableLine = 0
         self.pageDisplay = 0
         self.pageSetup = 0
@@ -46,11 +45,14 @@ class MainApp(QMainWindow, ui):
         self.calendarWidgetDisplay.setSelectedDate(QDate(int(currentDate.split('-')[0]), int(currentDate.split('-')[1]), int(currentDate.split('-')[2])))
 
         self.Button_Handler()
+        
+        self.Setting_Config()
         try:
             self.Set_Table()
         except:
             pass
-        
+
+#################################################################################   
     def Button_Handler(self):
         pageDisplay = [self.prevPageDisplay,
                         self.nextPageDisplay]
@@ -71,10 +73,31 @@ class MainApp(QMainWindow, ui):
         self.editNoteSet.clicked.connect(self.Edit_Note)
         self.editNoteDelete.clicked.connect(self.Del_Note)
 
-##        self.pushButton.clicked.connect(self.test)
+        self.Setting.clicked.connect(self.Open_Setting)
 
-##    def test(self):
-##        print(self.label_84.setText('hello'))
+    def Setting_Config(self):
+        if not os.path.exists('Data/setting.conf'):
+            os.startfile('Setting.pyw')
+
+    def Set_Table(self):
+        os.chdir("Data/Weekly")
+        if os.path.exists('WeeklySave.txt'):
+            with codecs.open('WeeklySave.txt', 'r', 'utf-8') as f:
+                data = f.read()
+            cells = data.split('\n')
+            self.tableWidgetSetup.setRowCount(int(cells[0]))    ## Set Row Table
+            self.tableWidgetDisplay.setRowCount(int(cells[0]))  ## Set Row Table
+            self.tableLine = int(cells[0])
+        
+            for i in range(1,len(cells)-1):
+                tmp = cells[i].split(ROWCOLUMNITEM)
+                self.tableWidgetSetup.setItem(int(tmp[0]), int(tmp[1]), QTableWidgetItem(tmp[2]))
+                self.tableWidgetDisplay.setItem(int(tmp[0]), int(tmp[1]), QTableWidgetItem(tmp[2]))        
+        os.chdir('../../')
+
+#################################################################################
+    def Open_Setting(self):
+        os.startfile('Setting.pyw')
 
     def Add_Line(self):
         self.tableLine += 1
@@ -102,45 +125,9 @@ class MainApp(QMainWindow, ui):
     def Next_Page_Setup(self):
         if self.pageSetup<9:
             self.pageSetup += 1
-        self.stackedWidgetSetup.setCurrentIndex(self.pageSetup)
+        self.stackedWidgetSetup.setCurrentIndex(self.pageSetup)        
 
 #################################################################################
-
-    def Set_Table(self):
-        os.chdir(_GetPath.Weekly_Path())
-        with codecs.open('WeeklySave.txt', 'r', 'utf-8') as f:
-            data = f.read()
-        cells = data.split('\n')
-        self.tableWidgetSetup.setRowCount(int(cells[0]))    ## Set Row Table
-        self.tableWidgetDisplay.setRowCount(int(cells[0]))  ## Set Row Table
-        self.tableLine = int(cells[0])
-        
-        for i in range(1,len(cells)-1):
-            tmp = cells[i].split(ROWCOLUMNITEM)
-            self.tableWidgetSetup.setItem(int(tmp[0]), int(tmp[1]), QTableWidgetItem(tmp[2]))
-            self.tableWidgetDisplay.setItem(int(tmp[0]), int(tmp[1]), QTableWidgetItem(tmp[2]))        
-
-    def Weekly_Save(self):
-        weeklyPath = _GetPath.Weekly_Path()
-        os.chdir(weeklyPath)
-        row = self.tableWidgetSetup.rowCount()
-        column = self.tableWidgetSetup.columnCount()
-        
-        with codecs.open('WeeklySave.txt', 'w', 'utf-8') as f:
-            f.write(str(self.tableLine) + '\n')
-            for i in range(0,row):
-                for j in range(0,column):
-                    try:
-                        item = str(self.tableWidgetSetup.item(i,j).text())
-                        cell = str(i) + ROWCOLUMNITEM + str(j) + ROWCOLUMNITEM + item + '\n'
-                        f.write(cell)
-                    except:
-                        pass      
-        self.tableWidgetDisplay.setRowCount(0)  ## Set Row Table
-        self.Set_Table()
-
-#################################################################################
-
     def Object_Name_List_Display(self):
         titleObjectName = [self.title_1,
                        self.title_2,
@@ -185,8 +172,10 @@ class MainApp(QMainWindow, ui):
         titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Display()
         selectedDate = self.calendarWidgetDisplay.selectedDate().getDate()
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
-        os.chdir(_GetPath.Note_Path())
+        print('a',os.getcwd())
+        os.chdir('Data/Notes')
         self.Clean_Notes_Display()
+        print('done')
         if os.path.exists(dateFormat):
             with codecs.open(dateFormat, 'r', 'utf-8') as f:
                 notes = f.read()
@@ -198,19 +187,30 @@ class MainApp(QMainWindow, ui):
                 titleObjectName[i].setText(title)
                 timeObjectName[i].setText(time)
                 contentObjectName[i].setPlainText(content)
-                print(title, time, content)
-                print('------------------')
+        os.chdir('../../')
 
 #################################################################################
-
-    def Set_Notes_Number(self, dateFormat):
-        os.chdir(_GetPath.Note_Path())
-        if os.path.exists(dateFormat):
-            with codecs.open(dateFormat, 'r', 'utf-8') as f:
-                tmp = f.read()
-        self.label_86.setText(str(len(tmp.split(NOTE))-1))
-        self.label_84.setText(str(len(tmp.split(NOTE))-1))        
-
+    def Weekly_Save(self):
+        os.chdir('Data/Weekly')
+        row = self.tableWidgetSetup.rowCount()
+        column = self.tableWidgetSetup.columnCount()
+        
+        with codecs.open('WeeklySave.txt', 'w', 'utf-8') as f:
+            f.write(str(self.tableLine) + '\n')
+            for i in range(0,row):
+                for j in range(0,column):
+                    try:
+                        item = str(self.tableWidgetSetup.item(i,j).text())
+                        cell = str(i) + ROWCOLUMNITEM + str(j) + ROWCOLUMNITEM + item + '\n'
+                        f.write(cell)
+                    except:
+                        pass      
+        self.tableWidgetDisplay.setRowCount(0)  ## Set Row Table
+        os.chdir('../../')
+        
+        self.Set_Table()
+        
+#################################################################################
     def Check_Notes_Number(self, dateFormat):
         if os.path.exists(dateFormat):
             with codecs.open(dateFormat, 'r', 'utf-8') as f:
@@ -222,7 +222,7 @@ class MainApp(QMainWindow, ui):
                 return False
         else:
             return True
-    
+
     def Create_Note(self):
         selectedDate = self.calendarWidgetSetupCreate.selectedDate().getDate()
         title = self.titleSetup.text()
@@ -234,7 +234,7 @@ class MainApp(QMainWindow, ui):
         
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
 
-        os.chdir(_GetPath.Note_Path())
+        os.chdir('Data/Notes')
         if self.Check_Notes_Number(dateFormat):
             if os.path.exists(dateFormat):
                 with codecs.open(dateFormat, 'a', 'utf-8') as f:
@@ -244,7 +244,22 @@ class MainApp(QMainWindow, ui):
                     f.write(note)
             self.titleSetup.clear()
             self.plainTextEditSetup.clear()
-            self.Set_Notes_Number(dateFormat)
+            self.Set_Notes_Number(dateFormat, '1')
+        os.chdir('../../')
+
+    def Set_Notes_Number(self, dateFormat, n):
+        if os.path.exists(dateFormat):
+            with codecs.open(dateFormat, 'r', 'utf-8') as f:
+                tmp = f.read()
+            if n=='1':
+                self.label_84.setText(str(len(tmp.split(NOTE))-1))
+            elif n=='2':
+                self.label_86.setText(str(len(tmp.split(NOTE))-1))
+        else:
+            self.label_86.setText('')
+        
+    
+    
 
 #################################################################################
 
@@ -281,33 +296,32 @@ class MainApp(QMainWindow, ui):
                              self.plainTextEdit_20]
         return titleObjectName, timeObjectName, contentObjectName
 
-    def Clean_Notes_Setup(self):
-        titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
-        for i in range(0,10):
-                titleObjectName[i].setText('')
-                timeObjectName[i].setText('')
-                contentObjectName[i].setPlainText('')
-
     def Clear_Note_Data(self):
         noteData = Note
         while len(noteData.title)!=0:
             for i in noteData.title:
                 noteData.title.remove(i)
 
+    def Clean_Notes_Setup(self):
+        titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
+        for i in range(0,10):
+                titleObjectName[i].setText('')
+                timeObjectName[i].setText('')
+                contentObjectName[i].setPlainText('')
+                
     def See_Notes_Edit(self):
         titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
         selectedDate = self.calendarWidgetSetupEdit.selectedDate().getDate()
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
 
-        self.Set_Notes_Number(dateFormat)
         self.Clear_Note_Data()
         self.Clean_Notes_Setup()
+        
+        os.chdir('Data/Notes')
+        self.Set_Notes_Number(dateFormat, '2')
 
         noteData = Note
         noteData.date = dateFormat
-        print(dateFormat)
-        
-        os.chdir(_GetPath.Note_Path())
         if os.path.exists(dateFormat):
             with codecs.open(dateFormat, 'r', 'utf-8') as f:
                 notes = f.read()
@@ -325,14 +339,7 @@ class MainApp(QMainWindow, ui):
                 titleObjectName[i].setText(title)                
                 timeObjectName[i].setText(time)
                 contentObjectName[i].setPlainText(content)
-                
-                print(title, time, content)
-                print('------------------')
-            for i in range(0,len(noteData.title)):
-                print(noteData.title[i])
-                print(noteData.time[i])
-                print(noteData.content[i])
-                print('------------------')
+        os.chdir('../../')
 
     def Edit_Note(self):
         noteData = Note
@@ -342,9 +349,6 @@ class MainApp(QMainWindow, ui):
             titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
 
             currentIndex = self.stackedWidgetSetup.currentIndex()
-            print(currentIndex)
-            print(len(noteData.title)-1)
-            print(dateFormat)
             
             title = titleObjectName[currentIndex].text()
             time = timeObjectName[currentIndex].text()
@@ -355,11 +359,12 @@ class MainApp(QMainWindow, ui):
                 noteData.time[currentIndex] = time
                 noteData.content[currentIndex] = content
                 
-                os.chdir(_GetPath.Note_Path())
+                os.chdir('Data/Notes')
                 with codecs.open(dateFormat, 'w', 'utf-8') as f:
                     for i in range(0,len(noteData.title)):
                         note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
                         f.write(note)
+                os.chdir('../../')
 
     def Del_Note(self):
         noteData = Note
@@ -369,12 +374,17 @@ class MainApp(QMainWindow, ui):
             noteData.title.remove(noteData.title[currentIndex])
             noteData.time.remove(noteData.time[currentIndex])
             noteData.content.remove(noteData.content[currentIndex])
-
-            os.chdir(_GetPath.Note_Path())
-            with codecs.open(dateFormat, 'w', 'utf-8') as f:
-                for i in range(0,len(noteData.title)):
-                    note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
-                    f.write(note)
+            if noteData.time==[]:
+                os.chdir('Data/Notes')
+                os.system(f'del {dateFormat}')
+                os.chdir('../../')
+            else:
+                os.chdir('Data/Notes')
+                with codecs.open(dateFormat, 'w', 'utf-8') as f:
+                    for i in range(0,len(noteData.title)):
+                        note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
+                        f.write(note)
+                os.chdir('../../')
             
             self.See_Notes_Edit()
 

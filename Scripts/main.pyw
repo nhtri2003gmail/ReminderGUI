@@ -74,6 +74,7 @@ class MainApp(QMainWindow, ui):
         self.editNoteDelete.clicked.connect(self.Del_Note)
 
         self.Setting.clicked.connect(self.Open_Setting)
+        self.Shutdown.clicked.connect(self.Shutdown_App)
 
     def Setting_Config(self):
         if not os.path.exists('Data/setting.conf'):
@@ -98,6 +99,9 @@ class MainApp(QMainWindow, ui):
 #################################################################################
     def Open_Setting(self):
         os.startfile('Setting.pyw')
+
+    def Shutdown_App(self):
+        os.system('taskkill /F /IM pyw.exe')
 
     def Add_Line(self):
         self.tableLine += 1
@@ -172,10 +176,8 @@ class MainApp(QMainWindow, ui):
         titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Display()
         selectedDate = self.calendarWidgetDisplay.selectedDate().getDate()
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
-        print('a',os.getcwd())
         os.chdir('Data/Notes')
         self.Clean_Notes_Display()
-        print('done')
         if os.path.exists(dateFormat):
             with codecs.open(dateFormat, 'r', 'utf-8') as f:
                 notes = f.read()
@@ -223,7 +225,89 @@ class MainApp(QMainWindow, ui):
         else:
             return True
 
+    def Sort_Notes(self, dateFormat):
+        title=[]
+        time=[]
+        content=[]
+        with codecs.open(dateFormat, 'r', 'utf-8') as f:
+            tmp = f.read()
+        notes = tmp.split(NOTE)
+        for i in range(0,len(notes)-1):
+            title.append(notes[i].split(TITLETIMECONTENT)[0])
+            time.append(notes[i].split(TITLETIMECONTENT)[1])
+            content.append(notes[i].split(TITLETIMECONTENT)[2])
+
+        ## Sort PM to the back
+        for i in range(0,len(time)-1):
+            if int(time[i].split(':')[0])<12:
+                continue
+            for j in range(i+1, len(time)):
+                if int(time[j].split(':')[0])>=12:
+                    continue
+                if(int(time[i].split(':')[0])>int(time[j].split(':')[0])):
+                    tmp = title[i]
+                    title[i]=title[j]
+                    title[j]=tmp
+                   
+                    tmp = time[i]
+                    time[i]=time[j]
+                    time[j]=tmp
+                   
+                    tmp = content[i]
+                    content[i]=content[j]
+                    content[j]=tmp
+                    break
+
+        for i in range(0, len(time)-1):
+            if int(time[i].split(':')[0])>=12:
+                continue
+            di = datetime.strptime(time[i], '%H:%M')
+            for j in range(i+1, len(time)):                
+                if int(time[j].split(':')[0])>=12:
+                    continue
+                dj = datetime.strptime(time[j], '%H:%M')
+                if di.time()>dj.time():
+                    t = title[i]
+                    title[i] = title[j]
+                    title[j] = t
+
+                    t = time[i]
+                    time[i]=time[j]
+                    time[j]=t
+                    
+                    t = content[i]
+                    content[i] = content[j]
+                    content[j] = t
+        
+        for i in range(0, len(time)-1):
+            if int(time[i].split(':')[0])<12:
+                continue
+            di = datetime.strptime(time[i], '%H:%M')
+            for j in range(i+1, len(time)):
+                
+                if int(time[j].split(':')[0])<12:
+                    continue
+                dj = datetime.strptime(time[j], '%H:%M')
+                if di.time()>dj.time():
+                    t = title[i]
+                    title[i] = title[j]
+                    title[j] = t
+
+                    t = time[i]
+                    time[i]=time[j]
+                    time[j]=t
+                    
+                    t = content[i]
+                    content[i] = content[j]
+                    content[j] = t
+        ## Write changes to file
+        with codecs.open(dateFormat, 'w', 'utf-8') as f:
+            for i in range(0,len(time)):
+                note = title[i] + TITLETIMECONTENT + time[i] + TITLETIMECONTENT + content[i] + NOTE
+                f.write(note)
+
     def Create_Note(self):
+        
         selectedDate = self.calendarWidgetSetupCreate.selectedDate().getDate()
         title = self.titleSetup.text()
         h = str(self.timeSetup.time().hour())       ## Convert int to string
@@ -242,10 +326,13 @@ class MainApp(QMainWindow, ui):
             else:
                 with codecs.open(dateFormat, 'w', 'utf-8') as f:
                     f.write(note)
+
+            self.Sort_Notes(dateFormat)
             self.titleSetup.clear()
             self.plainTextEditSetup.clear()
             self.Set_Notes_Number(dateFormat, '1')
         os.chdir('../../')
+        os.startfile('Restart.py')
 
     def Set_Notes_Number(self, dateFormat, n):
         if os.path.exists(dateFormat):

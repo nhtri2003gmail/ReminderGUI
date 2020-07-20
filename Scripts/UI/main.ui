@@ -3267,7 +3267,7 @@
    <widget class="QPushButton" name="Setting">
     <property name="geometry">
      <rect>
-      <x>1060</x>
+      <x>870</x>
       <y>-2</y>
       <width>101</width>
       <height>41</height>
@@ -3275,6 +3275,19 @@
     </property>
     <property name="text">
      <string>Setting</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Shutdown">
+    <property name="geometry">
+     <rect>
+      <x>1030</x>
+      <y>-2</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Shutdown</string>
     </property>
    </widget>
   </widget>

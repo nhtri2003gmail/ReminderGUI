@@ -22,46 +22,62 @@ beforeNoteTimeArr=[]
 
 #########################################################
 
-def Check_Note():
+def Del_Last_Month():
     os.chdir('Data/Notes')
+    fileName = _StringOp.ReverseDateFormatDash(str(datetime.now().date())) + '.txt'
+    if _StringOp.Get_Month(fileName)=='1':
+        monthFolder = '12'
+    else:
+        monthFolder = str(int(_StringOp.Get_Month(fileName))-1)
+    if os.listdir(f'{monthFolder}')!=[]:
+        os.system(f'del /Q /F /S {monthFolder}')
+    os.chdir('../../')
+    
+
+def Check_Note():
     title=[]
     time=[]
     content=[]
     fileName = _StringOp.ReverseDateFormatDash(str(datetime.now().date())) + '.txt'
-    with codecs.open(fileName, 'r', 'utf-8') as f:
-        tmp = f.read()
-    notes = tmp.split(NOTE)
-    for i in range(0, len(notes)-1):
-        title.append(notes[i].split(TITLETIMECONTENT)[0])
-        time.append(notes[i].split(TITLETIMECONTENT)[1])
-        content.append(notes[i].split(TITLETIMECONTENT)[2])
+    monthFolder = _StringOp.Get_Month(fileName)
+    
+    os.chdir('Data/Notes/' + monthFolder)
+    if os.path.exists(fileName):
+        with codecs.open(fileName, 'r', 'utf-8') as f:
+            tmp = f.read()
+        notes = tmp.split(NOTE)
+        for i in range(0, len(notes)-1):
+            title.append(notes[i].split(TITLETIMECONTENT)[0])
+            time.append(notes[i].split(TITLETIMECONTENT)[1])
+            content.append(notes[i].split(TITLETIMECONTENT)[2])
 
-    tNow = datetime.now()
-    i=0
-    while i<=len(time):
-        try:
-            t = datetime.strptime(time[i], '%H:%M')
-        except:
-            break
-        if (tNow.time()>t.time()):
-            title.remove(title[i])
-            time.remove(time[i])
-            content.remove(content[i])
-            continue
-        i+=1
-    with codecs.open(fileName, 'w', 'utf-8') as f:
-        if(len(time)>0):
-            for i in range(0, len(time)):
-                note = title[i] + TITLETIMECONTENT + time[i] + TITLETIMECONTENT + content[i] + NOTE
-                f.write(note)
-        else:
-            f.write('')
+        tNow = datetime.now()
+        i=0
+        while i<=len(time):
+            try:
+                t = datetime.strptime(time[i], '%H:%M')
+            except:
+                break
+            if (tNow.time()>t.time()):
+                title.remove(title[i])
+                time.remove(time[i])
+                content.remove(content[i])
+                continue
+            i+=1
+        with codecs.open(fileName, 'w', 'utf-8') as f:
+            if(len(time)>0):
+                for i in range(0, len(time)):
+                    note = title[i] + TITLETIMECONTENT + time[i] + TITLETIMECONTENT + content[i] + NOTE
+                    f.write(note)
+            else:
+                f.write('')
         
-    os.chdir('../../')
+    os.chdir('../../../')
 
 #########################################################
                                                         #
 def Run():                                              #
+    Del_Last_Month()
     Check_Note()
     with open('Data/setting.conf', 'rt' ) as f:         #
         tmp = f.read()                                  #
@@ -73,10 +89,13 @@ def Run():                                              #
         afterPeriod = int(data[1].split(' ')[1])*60     #
         Timer(afterPeriod, After_Period).start()        #
     if(data[2].split(' ')[0]=='2'):                     #
-        Get_Time()
-        global beforeNoteTime                           #
-        beforeNoteTime = int(data[2].split(' ')[1])     #
-        Before_Note_Time()                              #
+        try:
+            Get_Time()
+            global beforeNoteTime                           #
+            beforeNoteTime = int(data[2].split(' ')[1])     #
+            Before_Note_Time()                              #
+        except:
+            pass
                                                         #
 #########################################################
         
@@ -166,14 +185,17 @@ def Before_Note_Time():
 def Get_Time():
     global fileName
     fileName = _StringOp.ReverseDateFormatDash(str(datetime.now().date())) + '.txt'
-    with codecs.open(f'Data/Notes/{fileName}', 'r', 'utf-8') as f:
+    monthFolder = _StringOp.Get_Month(fileName)
+    with codecs.open(f'Data/Notes/{monthFolder}/{fileName}', 'r', 'utf-8') as f:
         tmp=f.read()
+        
     notes = tmp.split(NOTE)
     note = Note
     for i in range(0,len(notes)-1):
         note.title.append(notes[i].split(TITLETIMECONTENT)[0])
         note.time.append(notes[i].split(TITLETIMECONTENT)[1])
         note.content.append(notes[i].split(TITLETIMECONTENT)[2])
+
 
 #########################################################
 

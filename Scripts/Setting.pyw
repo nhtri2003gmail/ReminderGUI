@@ -42,6 +42,32 @@ class Setting(QMainWindow,ui):
             os.mkdir('Data/Notes')
         if not os.path.isdir('Data/Weekly'):
             os.mkdir('Data/Weekly')
+
+        if not os.path.isdir('Data/Notes/1'):
+            os.mkdir('Data/Notes/1')
+        if not os.path.isdir('Data/Notes/2'):
+            os.mkdir('Data/Notes/2')
+        if not os.path.isdir('Data/Notes/3'):
+            os.mkdir('Data/Notes/3')
+        if not os.path.isdir('Data/Notes/4'):
+            os.mkdir('Data/Notes/4')
+        if not os.path.isdir('Data/Notes/5'):
+            os.mkdir('Data/Notes/5')
+        if not os.path.isdir('Data/Notes/6'):
+            os.mkdir('Data/Notes/6')
+        if not os.path.isdir('Data/Notes/7'):
+            os.mkdir('Data/Notes/7')
+        if not os.path.isdir('Data/Notes/8'):
+            os.mkdir('Data/Notes/8')
+        if not os.path.isdir('Data/Notes/9'):
+            os.mkdir('Data/Notes/9')
+        if not os.path.isdir('Data/Notes/10'):
+            os.mkdir('Data/Notes/10')
+        if not os.path.isdir('Data/Notes/11'):
+            os.mkdir('Data/Notes/11')
+        if not os.path.isdir('Data/Notes/12'):
+            os.mkdir('Data/Notes/12')
+        
         
     def Get_Homepath(self):
         if not os.path.exists('Data/HOMEPATH.txt'):

@@ -176,7 +176,8 @@ class MainApp(QMainWindow, ui):
         titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Display()
         selectedDate = self.calendarWidgetDisplay.selectedDate().getDate()
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
-        os.chdir('Data/Notes')
+        monthFolder = _StringOp.Get_Month(dateFormat)
+        os.chdir('Data/Notes/' + monthFolder)
         self.Clean_Notes_Display()
         if os.path.exists(dateFormat):
             with codecs.open(dateFormat, 'r', 'utf-8') as f:
@@ -189,7 +190,7 @@ class MainApp(QMainWindow, ui):
                 titleObjectName[i].setText(title)
                 timeObjectName[i].setText(time)
                 contentObjectName[i].setPlainText(content)
-        os.chdir('../../')
+        os.chdir('../../../')
 
 #################################################################################
     def Weekly_Save(self):
@@ -317,8 +318,8 @@ class MainApp(QMainWindow, ui):
         note = title + TITLETIMECONTENT + time + TITLETIMECONTENT + content + NOTE
         
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
-
-        os.chdir('Data/Notes')
+        monthFolder = _StringOp.Get_Month(dateFormat)
+        os.chdir('Data/Notes/' + monthFolder)
         if self.Check_Notes_Number(dateFormat):
             if os.path.exists(dateFormat):
                 with codecs.open(dateFormat, 'a', 'utf-8') as f:
@@ -331,7 +332,7 @@ class MainApp(QMainWindow, ui):
             self.titleSetup.clear()
             self.plainTextEditSetup.clear()
             self.Set_Notes_Number(dateFormat, '1')
-        os.chdir('../../')
+        os.chdir('../../../')
         os.startfile('Restart.py')
 
     def Set_Notes_Number(self, dateFormat, n):
@@ -400,11 +401,13 @@ class MainApp(QMainWindow, ui):
         titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
         selectedDate = self.calendarWidgetSetupEdit.selectedDate().getDate()
         dateFormat = _StringOp.DateFormatDash(str(selectedDate)) + '.txt'
-
+        monthFolder = _StringOp.Get_Month(dateFormat)
+        print('hello1')
+        
         self.Clear_Note_Data()
         self.Clean_Notes_Setup()
-        
-        os.chdir('Data/Notes')
+
+        os.chdir('Data/Notes/' + monthFolder)
         self.Set_Notes_Number(dateFormat, '2')
 
         noteData = Note
@@ -426,11 +429,12 @@ class MainApp(QMainWindow, ui):
                 titleObjectName[i].setText(title)                
                 timeObjectName[i].setText(time)
                 contentObjectName[i].setPlainText(content)
-        os.chdir('../../')
+        os.chdir('../../../')
 
     def Edit_Note(self):
         noteData = Note
         dateFormat = noteData.date
+        monthFolder = _StringOp.Get_Month(dateFormat)
 
         if(noteData.title!=0):
             titleObjectName, timeObjectName, contentObjectName = self.Object_Name_List_Setup()
@@ -446,32 +450,29 @@ class MainApp(QMainWindow, ui):
                 noteData.time[currentIndex] = time
                 noteData.content[currentIndex] = content
                 
-                os.chdir('Data/Notes')
+                os.chdir('Data/Notes/' + monthFolder)
                 with codecs.open(dateFormat, 'w', 'utf-8') as f:
                     for i in range(0,len(noteData.title)):
                         note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
                         f.write(note)
-                os.chdir('../../')
+                os.chdir('../../../')
 
     def Del_Note(self):
         noteData = Note
         dateFormat = noteData.date
+        monthFolder = _StringOp.Get_Month(dateFormat)
         currentIndex = self.stackedWidgetSetup.currentIndex()
         if(currentIndex<=len(noteData.title)-1):
             noteData.title.remove(noteData.title[currentIndex])
             noteData.time.remove(noteData.time[currentIndex])
             noteData.content.remove(noteData.content[currentIndex])
-            if noteData.time==[]:
-                os.chdir('Data/Notes')
-                os.system(f'del {dateFormat}')
-                os.chdir('../../')
-            else:
-                os.chdir('Data/Notes')
-                with codecs.open(dateFormat, 'w', 'utf-8') as f:
-                    for i in range(0,len(noteData.title)):
-                        note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
-                        f.write(note)
-                os.chdir('../../')
+
+            os.chdir('Data/Notes/' + monthFolder)
+            with codecs.open(dateFormat, 'w', 'utf-8') as f:
+                for i in range(0,len(noteData.title)):
+                    note = noteData.title[i] + TITLETIMECONTENT + noteData.time[i] + TITLETIMECONTENT + noteData.content[i] + NOTE
+                    f.write(note)
+            os.chdir('../../../')
             
             self.See_Notes_Edit()
 

@@ -12,11 +12,11 @@ With the first run, you will be required to set up things in the setting box. Af
 
 Next, at the ReminderGUI window, there are 3 tabs: "Schedule", "Weekly Setup", "Notes Setup" which use for display notes and schedule, create weekly schedule, create notes respectively
 
----------------- The first tab: "Schedule"------------------
+---------------- The first tab: "Schedule"---------------------------
 
 The table over used for display weekly schedule, the calendar below used for seeing notes on a specified day
 
----------------- The second tab: "Weekly Setup"-------------------
+---------------- The second tab: "Weekly Setup"----------------------
 
 On this tab, there are 3 buttons which are labeled to help you create new lines, delete lines and save schedule.
 
